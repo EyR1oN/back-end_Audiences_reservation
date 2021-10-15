@@ -186,10 +186,10 @@ paths:
     post:
       tags:
         - Reservation
-      summary: Place an order for a pet
-      operationId: placeOrder
+      summary: Place an reservation
+      operationId: placeReservation
       requestBody:
-        description: order placed for purchasing the pet
+        description: placing reservation of an audience
         content:
           '*/*':
             schema:
@@ -206,9 +206,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/Reservation'
         '400':
-          description: Invalid Order
+          description: Invalid Reservation
           content: {}
       x-codegen-request-body-name: body
+    put:
+      tags:
+        - Reservation
+      summary: Update an reservation of an the audience
+      operationId: updateReservation
+      requestBody:
+        description: updating reservation of an audience
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/Reservation'
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '400':
+          description: Invalid Reservation
+          content: {}
   /Reservation/{reservationId}:
     get:
       tags:
@@ -221,7 +246,7 @@ paths:
       parameters:
         - name: reservationId
           in: path
-          description: ID of pet that needs to be fetched
+          description: ID of reservation that needs to be fetched
           required: true
           schema:
             maximum: 10
@@ -242,12 +267,12 @@ paths:
           description: Invalid ID supplied
           content: {}
         '404':
-          description: Order not found
+          description: Reservation not found
           content: {}
     delete:
       tags:
         - Reservation
-      summary: Delete purchase order by ID
+      summary: Delete purchase reservation by ID
       description: >-
         For valid response try integer IDs with positive integer value.        
         Negative or non-integer values will generate API errors
@@ -255,7 +280,7 @@ paths:
       parameters:
         - name: reservationId
           in: path
-          description: ID of the order that needs to be deleted
+          description: ID of the reservation that needs to be deleted
           required: true
           schema:
             minimum: 1
@@ -268,7 +293,7 @@ paths:
           description: Invalid ID supplied
           content: {}
         '404':
-          description: Order not found
+          description: Reservation not found
           content: {}
   /user:
     post:
@@ -524,7 +549,7 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: http://petstore.swagger.io/oauth/dialog
+          authorizationUrl: http://reservationstore.swagger.io/oauth/dialog
           scopes:
             write:reserv: modify reservations in your account
             read:reserv: read your reservations
