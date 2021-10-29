@@ -7,6 +7,12 @@ authors = ["EyR1oN <nazarii.hovdysh.knm.2020@lpnu.ua>"]
 [tool.poetry.dependencies]
 python = "^3.7"
 Flask = "^2.0.1"
+waitress = "^2.0.0"
+SQLAlchemy = "^1.4.26"
+PyMySQL = "^1.0.2"
+SQLAlchemy-Utils = "^0.37.9"
+zipp = "^3.6.0"
+importlib-metadata = "^4.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
