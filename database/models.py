@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, DeclarativeMeta
 from sqlalchemy import Column, Integer, ForeignKey, VARCHAR, DateTime, Boolean
 
-engine = create_engine('mysql+pymysql://root:pass12345@127.0.0.1/pp')
+engine = create_engine('mysql+pymysql://root:qwerty@127.0.0.1/pp')
 engine.connect()
 
 SessionFactory = sessionmaker(bind=engine)
@@ -21,7 +21,7 @@ class User(BaseModel):
     firstName = Column(VARCHAR(45))
     lastName = Column(VARCHAR(45))
     email = Column(VARCHAR(45))
-    password = Column(VARCHAR(45))
+    password = Column(VARCHAR(100))
     phoneNumber = Column(VARCHAR(45))
 
 

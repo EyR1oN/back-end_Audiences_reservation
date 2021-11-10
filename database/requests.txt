@@ -1,0 +1,19 @@
+ U S E R :
+
+curl -i http://127.0.0.1:5000/user -d "{ \"username\": \"maks1\", \"firstName\": \"dima\", \"lastName\": \"loh\", \"password\": \"12341322\"}" -H "Content-Type: application/json" -X POST
+curl -i http://127.0.0.1:5000/user/Col1ns -X GET
+curl -i http://127.0.0.1:5000/user/40 -d "{ \"username\": \"maks2\"}" -H "Content-Type: application/json" -X PUT
+curl -i http://127.0.0.1:5000/user/1 -X DELETE
+curl -i http://127.0.0.1:5000/user/2 -d "{ \"lastName\": \"kokokolol\"}" -H "Content-Type: application/json" -X PUT
+
+ E V E N T :
+
+curl -i http://127.0.0.1:5000/event -d "{ \"name\": \"birth\", \"date\": \"12.01\", \"owner_id\": \"2\"}" -H "Content-Type: application/json" -X POST
+curl -i http://127.0.0.1:5000/event/1 -X GET
+curl -i http://127.0.0.1:5000/event/1 -d "{ \"date\": \"09.11\"}" -H "Content-Type: application/json" -X PUT
+curl -i http://127.0.0.1:5000/event/1 -X DELETE
+
+curl -i http://127.0.0.1:5000/event/1/users -X GET
+curl -i http://127.0.0.1:5000/event/1/user/1 -X POST
+curl -i http://127.0.0.1:5000/your_events/user/2 -X GET
+curl -i http://127.0.0.1:5000/events/user/1 -X GET
