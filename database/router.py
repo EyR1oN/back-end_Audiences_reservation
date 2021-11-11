@@ -1,5 +1,3 @@
-from flask import Flask
-from models import User, Audience, Reservation
 from flask import Flask, Response
 from models import *
 from flask import jsonify
@@ -8,7 +6,6 @@ from flask import make_response
 from flask import request
 from flask_bcrypt import Bcrypt
 from sqlalchemy.exc import IntegrityError
-from types import SimpleNamespace
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -59,10 +56,6 @@ def delete_user(username):
         return make_response(jsonify({'error': 'Not found'}), 404)
 
 
-# except:
-#     return "User not found", 404
-
-
 @app.route('/user', methods=['POST'])
 def create_user():
     user = User(
@@ -89,7 +82,7 @@ def create_user():
 
 @app.route('/user/<string:username>', methods=['PUT'])
 def update_user(username):
-    u = Session.query(User).filter_by(username=username).all()
+    u = Session.query(User).filter_by(username=username).first()
     if not u:
         return make_response(jsonify({'error': 'Not found'}), 404)
 
@@ -136,9 +129,9 @@ def create_reservation():
                     mimetype="application/json")
 
 
-@app.route('/user/<int:id>', methods=['PUT'])
-def update_user(id):
-    u = Session.query(Reservation).filter_by(idReservation=id).all()
+@app.route('/reservation/<int:id>', methods=['PUT'])
+def update_reservation(id):
+    u = Session.query(Reservation).filter_by(idReservation=id).first()
     if not u:
         return make_response(jsonify({'error': 'Not found'}), 404)
 
@@ -149,11 +142,11 @@ def update_user(id):
     if request.json.get('idStatus'):
         u.lastName = request.json.get('idStatus')
     if request.json.get('amountOfHours'):
-        u.email = request.json.get('amountOfHours')
+        u.amountOfHours = request.json.get('amountOfHours')
     if request.json.get('dateTimeOfReservation'):
-        u.password = request.json.get('dateTimeOfReservation')
+        u.dateTimeOfReservation = request.json.get('dateTimeOfReservation')
     if request.json.get('dateTimeOfEndReservation'):
-        u.phoneNumber = request.json.get('dateTimeOfEndReservation')
+        u.dateTimeOfEndReservation = request.json.get('dateTimeOfEndReservation')
     Session.commit()
 
     return Response(response=to_json(u, Reservation),
@@ -161,8 +154,8 @@ def update_user(id):
                     mimetype="application/json")
 
 
-@app.route("/user/<int:id>", methods=['GET'])
-def get_user(id):
+@app.route("/reservation/<int:id>", methods=['GET'])
+def get_reservation(id):
     try:
         a = to_json(Session.query(Reservation).filter_by(idReservation=id).one(), Reservation)
         return Response(response=a,
@@ -172,8 +165,8 @@ def get_user(id):
         return make_response(jsonify({'error': 'Not found'}), 404)
 
 
-@app.route('/user/<int:id>', methods=['DELETE'])
-def delete_user(id):
+@app.route('/reservation/<int:id>', methods=['DELETE'])
+def delete_reservation(id):
     try:
         reservation = Session.query(Reservation).filter_by(idReservation=id).first()
         Session.delete(reservation)

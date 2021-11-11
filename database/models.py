@@ -1,8 +1,7 @@
-from typing import Union, Any
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session, DeclarativeMeta
-from sqlalchemy import Column, Integer, ForeignKey, VARCHAR, DateTime, Boolean
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import Column, Integer, ForeignKey, VARCHAR
 
 engine = create_engine('mysql+pymysql://root:qwerty@127.0.0.1/pp')
 engine.connect()
