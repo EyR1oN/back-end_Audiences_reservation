@@ -2,13 +2,45 @@ from flask import Flask, Response
 from models import *
 from flask import jsonify
 import json
+from functools import wraps
 from flask import make_response
 from flask import request
 from flask_bcrypt import Bcrypt
 from sqlalchemy.exc import IntegrityError
 
+
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
+
+def auth_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        user_ = Session.query(User).filter_by(username=auth.username).first()
+        if auth and user_ and bcrypt.check_password_hash(user_.password, auth.password):
+            return f(*args, **kwargs)
+
+        return make_response('Could not verify your login!', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+    return decorated
+
+
+def auth_admin(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        user_ = Session.query(User).filter_by(username=auth.username).first()
+        if auth and user_ and bcrypt.check_password_hash(user_.password, auth.password):
+            userStatus_ = Session.query(UserStatus).filter_by(statusName='SuperUser').first()
+            if user_.userStatus == userStatus_.idStatus:
+                return f(*args, **kwargs)
+            else:
+                return make_response('You are not allowed!', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+        return make_response('Could not verify your login!', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+    return decorated
 
 
 def to_json(inst, cls):
@@ -40,6 +72,7 @@ def get_user(username):
 
 
 @app.route('/user/<string:username>', methods=['DELETE'])
+@auth_admin
 def delete_user(username):
     try:
         user = Session.query(User).filter_by(username=username).first()
@@ -63,8 +96,9 @@ def create_user():
         firstName=request.json.get('firstName'),
         lastName=request.json.get('lastName'),
         email=request.json.get('email'),
-        password=bcrypt.generate_password_hash(request.json.get('password')).decode('utf-8'),
-        phoneNumber=request.json.get('phoneNumber')
+        password=bcrypt.generate_password_hash(request.json.get('password')),
+        phoneNumber=request.json.get('phoneNumber'),
+        userStatus=request.json.get('userStatus')
     )
     tvins = Session.query(User).filter_by(username=user.username).all()
     if tvins:
@@ -81,6 +115,7 @@ def create_user():
 
 
 @app.route('/user/<string:username>', methods=['PUT'])
+@auth_admin
 def update_user(username):
     u = Session.query(User).filter_by(username=username).first()
     if not u:
@@ -101,6 +136,8 @@ def update_user(username):
         u.password = request.json.get('password')
     if request.json.get('phoneNumber'):
         u.phoneNumber = request.json.get('phoneNumber')
+    if request.json.get('userStatus'):
+        u.userStatus = request.json.get('userStatus')
     Session.commit()
 
     return Response(response=to_json(u, User),
@@ -109,6 +146,7 @@ def update_user(username):
 
 
 @app.route('/reservation', methods=['POST'])
+@auth_required
 def create_reservation():
     reservation = Reservation(
         idAudience=request.json.get('idAudience'),
@@ -130,17 +168,18 @@ def create_reservation():
 
 
 @app.route('/reservation/<int:id>', methods=['PUT'])
+@auth_required
 def update_reservation(id):
     u = Session.query(Reservation).filter_by(idReservation=id).first()
     if not u:
         return make_response(jsonify({'error': 'Not found'}), 404)
 
     if request.json.get('idAudience'):
-        u.username = request.json.get('idAudience')
+        u.idAudience = request.json.get('idAudience')
     if request.json.get('idUser'):
-        u.firstName = request.json.get('idUser')
+        u.idUser = request.json.get('idUser')
     if request.json.get('idStatus'):
-        u.lastName = request.json.get('idStatus')
+        u.idStatus = request.json.get('idStatus')
     if request.json.get('amountOfHours'):
         u.amountOfHours = request.json.get('amountOfHours')
     if request.json.get('dateTimeOfReservation'):
@@ -155,6 +194,7 @@ def update_reservation(id):
 
 
 @app.route("/reservation/<int:id>", methods=['GET'])
+@auth_required
 def get_reservation(id):
     try:
         a = to_json(Session.query(Reservation).filter_by(idReservation=id).one(), Reservation)
@@ -166,6 +206,7 @@ def get_reservation(id):
 
 
 @app.route('/reservation/<int:id>', methods=['DELETE'])
+@auth_admin
 def delete_reservation(id):
     try:
         reservation = Session.query(Reservation).filter_by(idReservation=id).first()
