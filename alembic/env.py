@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from models import BaseModel
+from database.models import BaseModel
 
 import sys
 sys.path.append(r"/home/taras/PycharmProjects/hello-world")
@@ -29,7 +29,7 @@ target_metadata = BaseModel.metadata
 # ... etc.
 config.set_main_option(
     "sqlalchemy.url",
-    "mysql+pymysql://root:pass12345@127.0.0.1/pp"
+    "mysql+pymysql://root:00000000password@localhost:3306/swagger_service"
 )
 
 def run_migrations_offline():

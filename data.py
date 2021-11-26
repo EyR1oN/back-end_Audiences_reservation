@@ -1,5 +1,4 @@
-from models import *
-from sqlalchemy import create_engine
+from database.models import *
 
 user1 = User(username="Col1ns", firstName="Taras", lastName="Vovk", email="customemail@gmail.com", password="asdf",
              phoneNumber="0935215742")

@@ -1,0 +1,6 @@
+{"idUser": 5, "username": "user1", "firstName": "user4firstName", "lastName": "user4lastName", "email": "user4@gmail.com", "password": "user4password", "phoneNumber": "4444444444", "userStatus": 1}
+{ "userStatus": 1}
+
+{"idAudience": 1, "idUser": 3, "idStatus": 1, "amountOfHours": 1, "dateTimeOfReservation": "11-11-1111", "dateTimeOfEndReservation": "22-22-2222"}
+{"idAudience": 2, "idUser": 6, "idStatus": 1, "amountOfHours": 1, "dateTimeOfReservation": "11-11-1111", "dateTimeOfEndReservation": "22-22-2222"}
+
