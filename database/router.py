@@ -10,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+idres = None
 
 
 def auth_required(f):
@@ -162,6 +163,7 @@ def create_reservation():
         Session.commit()
     except IntegrityError:
         return make_response(jsonify({'error': 'incorrect data'}), 409)
+
     a = to_json(reservation, Reservation)
     return Response(response=a,
                     status=200,

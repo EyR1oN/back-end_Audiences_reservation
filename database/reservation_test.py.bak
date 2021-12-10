@@ -18,7 +18,7 @@ class TestReservation(MyTest):
         self.reservation_end = "2021-01-01 3:00:00"
 
         self.reservation_data = {
-            "idReservation": 74,
+            "idReservation": 73,
             "idAudience": self.reservation_idAudience,
             "idStatus": self.reservation_idStatus,
             "amountOfHours": 2,
@@ -41,14 +41,11 @@ class TestReservation(MyTest):
                                 )
         a = ast.literal_eval(resp.data.decode('utf-8'))
         idres = a['idReservation']
-        f = open("idreservation.txt", "w")
-        f.write(str(idres))
-        f.close()
         self.assertEqual(200, resp.status_code)
 
     def test13_get_reservation(self):
-        f = open("idreservation.txt", 'r')
-        resp = self.client.get("http://localhost:5000/reservation/" + f.read(),
+        d = idres
+        resp = self.client.get("http://localhost:5000/reservation/" + str(self.reservation_data.get('idReservation')),
                                headers=self.header,
                                auth=self.user_auth)
         self.assertEqual(resp.status_code, 200)
@@ -67,8 +64,7 @@ class TestReservation(MyTest):
         self.assertEqual(resp.status_code, 404)
 
     def test16_put_reservation(self):
-        f = open("idreservation.txt", 'r')
-        resp = self.client.put("http://localhost:5000/reservation/" + f.read(),
+        resp = self.client.put("http://localhost:5000/reservation/" + str(self.reservation_data.get('idReservation')),
                                headers=self.header,
                                auth=self.user_auth,
                                data=json.dumps({"idAudience": self.reservation_idAudience}))
@@ -82,9 +78,8 @@ class TestReservation(MyTest):
         self.assertEqual(resp.status_code, 404)
 
     def test18_delete_reservation(self):
-        f = open("idreservation.txt", 'r')
         resp = self.client.delete(
-            "http://localhost:5000/reservation/" + f.read(),
+            "http://localhost:5000/reservation/" + str(self.reservation_data.get('idReservation')),
             headers=self.header,
             auth=self.user_auth)
         self.assertEqual(resp.status_code, 200)

@@ -17,5 +17,5 @@ To fill database us:
     $:python3 data.py
 
 
-$:coverage run -m --source=database --omit=database\models.py unittest
-discover -p "Tests" && coverage report
+$:coverage run -m --source=database --omit=database\models.py unittest discover -s database -p "*_test.py"  && coverage report
+
