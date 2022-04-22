@@ -1,5 +1,5 @@
 from flask import Flask, Response
-from database.models import *
+from models import *
 from flask import jsonify
 import json
 from functools import wraps
