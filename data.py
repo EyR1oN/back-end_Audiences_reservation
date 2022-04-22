@@ -1,11 +1,9 @@
-from database.models import *
-
 user1 = User(username="Col1ns", firstName="Taras", lastName="Vovk", email="customemail@gmail.com", password="asdf",
              phoneNumber="0935215742")
 
 audience1 = Audience(number=12)
 
-status1 = Status(statusName="Available")
+status1 = StatusAudience(statusName="Available")
 
 reservation1 = Reservation(idAudience=1, idUser=1, idStatus=1,
                            amountOfHours=4, dateTimeOfReservation="28.10.2021", dateTimeOfEndReservation="30.11.2021")
@@ -14,7 +12,7 @@ user2 = User(username="Starvars", firstName="Danylo", lastName="Sarvas", email="
              phoneNumber="102")
 
 
-status2 = Status(statusName="Unavailable")
+status2 = StatusAudience(statusName="Unavailable")
 
 reservation2 = Reservation(idAudience=1, idUser=2, idStatus=2,
                            amountOfHours=4, dateTimeOfReservation="28.10.2021", dateTimeOfEndReservation="30.11.2021")
