@@ -8,6 +8,7 @@ from flask import request
 from flask_bcrypt import Bcrypt
 from sqlalchemy.exc import IntegrityError
 from flask_cors import CORS
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -73,8 +74,23 @@ def get_user(username):
         return make_response(jsonify({'error': 'Not found'}), 401)
 
 
+@app.route("/user", methods=['GET'])
+def get_users():
+    try:
+        list_ = Session.query(User).all()
+        dict_ = dict()
+        for i in range(len(list_)):
+            dict_[i] = {"idUser": list_[i].idUser, "username": list_[i].username,
+                        "firstName": list_[i].firstName, "lastName": list_[i].lastName,
+                        "password": list_[i].password, "phoneNumber": list_[i].phoneNumber,
+                        "userStatus": list_[i].userStatus}
+        return make_response(jsonify(dict_), 200)
+    except:
+        return make_response(jsonify({'error': 'Not found'}), 401)
+
+
 @app.route('/user/<string:username>', methods=['DELETE'])
-@auth_admin
+@auth_required
 def delete_user(username):
     try:
         user = Session.query(User).filter_by(username=username).first()
@@ -116,17 +132,34 @@ def create_user():
                     mimetype="application/json")
 
 
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        user = User(
+            username=request.json.get('username'),
+            password=request.json.get('password')
+        )
+        user_db = Session.query(User).filter_by(username=user.username).first()
+        if bcrypt.check_password_hash(user_db.password, user.password):
+            user_db.password = user.password
+            a = to_json(user_db, User)
+            return Response(response=a,
+                    status=200,
+                    mimetype="application/json")
+        else:
+            return make_response(jsonify({'error': 'incorrect data'}), 409)
+    except IntegrityError:
+        return make_response(jsonify({'error': 'incorrect data'}), 409)
+
+
 @app.route('/user/<string:username>', methods=['PUT'])
-@auth_admin
+@auth_required
 def update_user(username):
     u = Session.query(User).filter_by(username=username).first()
     if not u:
         return make_response(jsonify({'error': 'Not found'}), 404)
 
     if request.json.get('username'):
-        tvins = (Session.query(User).filter_by(username=request.json.get('username')).all())
-        if tvins:
-            return make_response(jsonify({'error': 'username is taken'}), 409)
         u.username = request.json.get('username')
     if request.json.get('firstName'):
         u.firstName = request.json.get('firstName')
@@ -135,7 +168,7 @@ def update_user(username):
     if request.json.get('email'):
         u.email = request.json.get('email')
     if request.json.get('password'):
-        u.password = request.json.get('password')
+        u.password = bcrypt.generate_password_hash(request.json.get('password'))
     if request.json.get('phoneNumber'):
         u.phoneNumber = request.json.get('phoneNumber')
     if request.json.get('userStatus'):
@@ -160,6 +193,14 @@ def create_reservation():
         dateTimeOfReservation=request.json.get('dateTimeOfReservation'),
         dateTimeOfEndReservation=request.json.get('dateTimeOfEndReservation')
     )
+    u = Session.query(Reservation).filter(Reservation.idAudience == reservation.idAudience).all()
+    for i in u:
+        if datetime.strptime(i.dateTimeOfEndReservation, '%Y-%m-%d %H:%M:%S') > \
+                datetime.fromtimestamp(reservation.dateTimeOfReservation):
+            return make_response(jsonify({'error': 'auditorium is not free'}), 409)
+
+    reservation.dateTimeOfReservation = datetime.fromtimestamp(reservation.dateTimeOfReservation)
+    reservation.dateTimeOfEndReservation = datetime.fromtimestamp(reservation.dateTimeOfEndReservation)
     try:
         Session.add(reservation)
         Session.commit()
@@ -211,7 +252,7 @@ def get_reservation(id):
 
 
 @app.route('/reservation/<int:id>', methods=['DELETE'])
-@auth_admin
+@auth_required
 def delete_reservation(id):
     try:
         reservation = Session.query(Reservation).filter_by(idReservation=id).first()
@@ -223,6 +264,21 @@ def delete_reservation(id):
         }
     except:
         return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+# audience
+
+
+@app.route("/audience", methods=['GET'])
+def get_audiences():
+    try:
+        list_ = Session.query(Audience).all()
+        dict_ = dict()
+        for i in range(len(list_)):
+            dict_[i] = {"idAudience": list_[i].idAudience, "number": list_[i].number}
+        return make_response(jsonify(dict_), 200)
+    except:
+        return make_response(jsonify({'error': 'Not found'}), 401)
 
 
 if __name__ == "__main__":
