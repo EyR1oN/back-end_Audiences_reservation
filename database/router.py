@@ -159,6 +159,7 @@ def update_user(username):
     if not u:
         return make_response(jsonify({'error': 'Not found'}), 404)
 
+    changed_password = False;
     if request.json.get('username'):
         u.username = request.json.get('username')
     if request.json.get('firstName'):
@@ -168,13 +169,16 @@ def update_user(username):
     if request.json.get('email'):
         u.email = request.json.get('email')
     if request.json.get('password'):
-        u.password = bcrypt.generate_password_hash(request.json.get('password'))
+        changed_password = True
+        password_ = request.json.get('password')
+        u.password = bcrypt.generate_password_hash(password_)
     if request.json.get('phoneNumber'):
         u.phoneNumber = request.json.get('phoneNumber')
     if request.json.get('userStatus'):
         u.userStatus = request.json.get('userStatus')
     Session.commit()
-
+    if changed_password:
+        u.password = password_
     return Response(response=to_json(u, User),
                     status=200,
                     mimetype="application/json")
