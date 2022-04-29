@@ -10,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_cors import CORS
 from datetime import datetime
 
+
 app = Flask(__name__)
 CORS(app)
 bcrypt = Bcrypt(app)
@@ -109,12 +110,13 @@ def delete_user(username):
 
 @app.route('/user', methods=['POST'])
 def create_user():
+    password_ = request.json.get('password')
     user = User(
         username=request.json.get('username'),
         firstName=request.json.get('firstName'),
         lastName=request.json.get('lastName'),
         email=request.json.get('email'),
-        password=bcrypt.generate_password_hash(request.json.get('password')),
+        password=bcrypt.generate_password_hash(password_),
         phoneNumber=request.json.get('phoneNumber'),
         userStatus=request.json.get('userStatus')
     )
@@ -126,6 +128,7 @@ def create_user():
         Session.commit()
     except IntegrityError:
         return make_response(jsonify({'error': 'incorrect data'}), 409)
+    user.password = password_
     a = to_json(user, User)
     return Response(response=a,
                     status=200,
@@ -201,7 +204,7 @@ def create_reservation():
     for i in u:
         if datetime.strptime(i.dateTimeOfEndReservation, '%Y-%m-%d %H:%M:%S') > \
                 datetime.fromtimestamp(reservation.dateTimeOfReservation):
-            return make_response(jsonify({'error': 'auditorium is not free'}), 409)
+            return make_response(jsonify({'error': 'Auditorium is not free'}), 409)
 
     reservation.dateTimeOfReservation = datetime.fromtimestamp(reservation.dateTimeOfReservation)
     reservation.dateTimeOfEndReservation = datetime.fromtimestamp(reservation.dateTimeOfEndReservation)
@@ -209,7 +212,7 @@ def create_reservation():
         Session.add(reservation)
         Session.commit()
     except IntegrityError:
-        return make_response(jsonify({'error': 'incorrect data'}), 409)
+        return make_response(jsonify({'error': 'Incorrect data'}), 409)
 
     a = to_json(reservation, Reservation)
     return Response(response=a,
@@ -243,11 +246,11 @@ def update_reservation(id):
                     mimetype="application/json")
 
 
-@app.route("/reservation/<int:id>", methods=['GET'])
-@auth_required
-def get_reservation(id):
+@app.route("/reservation/<int:numberOfAudience>", methods=['GET'])
+def get_reservation(numberOfAudience):
     try:
-        a = to_json(Session.query(Reservation).filter_by(idReservation=id).one(), Reservation)
+        audience = Session.query(Audience).filter_by(number=numberOfAudience).one()
+        a = to_json(Session.query(Reservation).filter_by(idAudience=audience.idAudience).one(), Reservation)
         return Response(response=a,
                         status=200,
                         mimetype="application/json")
