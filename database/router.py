@@ -143,6 +143,9 @@ def login():
             password=request.json.get('password')
         )
         user_db = Session.query(User).filter_by(username=user.username).first()
+        if not user_db:
+            return make_response(jsonify({'error': 'incorrect data'}), 409)
+
         if bcrypt.check_password_hash(user_db.password, user.password):
             user_db.password = user.password
             a = to_json(user_db, User)
